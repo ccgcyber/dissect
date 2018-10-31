@@ -6,12 +6,14 @@
 
 (asdf:defsystem dissect
   :name "Dissect"
-  :version "0.11.0"
+  :version "1.0.0"
   :license "Artistic"
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :description "A lib for introspecting the call stack and active restarts."
-  :homepage "https://github.com/Shinmera/dissect"
+  :homepage "https://Shinmera.github.io/dissect/"
+  :bug-tracker "https://github.com/Shinmera/dissect/issues"
+  :source-control (:git "https://github.com/Shinmera/dissect.git")
   :serial T
   :components ((:file "package")
                (:file "toolkit")

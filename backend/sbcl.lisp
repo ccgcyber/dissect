@@ -14,22 +14,22 @@
   (let* ((code-location (sb-di:frame-code-location frame))
          (debug-source (ignore-errors
                         (sb-di:code-location-debug-source code-location))))
-    (when debug-source
-      (let* ((form (sb-di:debug-source-form debug-source))
-             (file (let ((file (sb-di:debug-source-namestring debug-source)))
-                     (when (and file (probe-file file))
-                       file)))
-             (line (when file
-                     (multiple-value-bind (pos found-form) (find-definition-in-file (sb-debug::frame-call frame) file)
-                       (when found-form (setf form found-form))
-                       (when pos (newlines-until-pos file pos))))))
-        (values file line form)))))
+    (cond #+#.(cl:when (cl:find-symbol (cl:string 'core-debug-source-p) "SB-C") :sbcl)
+          ((sb-c::core-debug-source-p debug-source)
+           (values NIL NIL (sb-c::core-debug-source-form debug-source)))
+          (debug-source
+           (let* ((file (let ((file (sb-di:debug-source-namestring debug-source)))
+                          (and file (probe-file file)))))
+             (when file
+               (multiple-value-bind (pos found-form)
+                   (find-definition-in-file (sb-debug::frame-call frame) file)
+                 (values file (newlines-until-pos file pos) found-form))))))))
 
 (defun resolve-file-slots (call)
   (multiple-value-bind (file line form) (frame-location (frame call))
-    (setf (file call) (when file (translate-logical-pathname file))
-          (line call) line
-          (form call) form))
+    (setf (slot-value call 'file) (when file (translate-logical-pathname file))
+          (slot-value call 'line) line
+          (slot-value call 'form) form))
   call)
 
 (macrolet ((define-resolvent (name)
